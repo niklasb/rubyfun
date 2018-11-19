@@ -9088,6 +9088,9 @@ ibf_load_iseq_each(const struct ibf_load *load, rb_iseq_t *iseq, ibf_offset_t of
     load_body->location.node_id = body->location.node_id;
     load_body->location.code_location = body->location.code_location;
 
+	if (body->is_size > 4096 || body->ci_size + body->ci_kw_size > 4096) {
+		rb_raise(rb_eRuntimeError, "too large");
+	}
     load_body->is_entries           = ZALLOC_N(union iseq_inline_storage_entry, body->is_size);
     load_body->ci_entries           = ibf_load_ci_entries(load, body);
     load_body->cc_entries           = ZALLOC_N(struct rb_call_cache, body->ci_size + body->ci_kw_size);
@@ -9977,6 +9980,11 @@ ibf_load_setup(struct ibf_load *load, VALUE loader_obj, VALUE str)
     load->header = (struct ibf_header *)load->buff;
     RB_OBJ_WRITE(loader_obj, &load->iseq_list, rb_ary_tmp_new(0));
     RB_OBJ_WRITE(loader_obj, &load->obj_list, rb_ary_tmp_new(0));
+
+	if (load->header->id_list_size > 8*1024) {
+	rb_raise(rb_eRuntimeError, "too large");
+    }
+
     load->id_list = ZALLOC_N(ID, load->header->id_list_size);
     load->iseq = NULL;
 

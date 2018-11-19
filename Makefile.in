@@ -254,6 +254,11 @@ miniruby$(EXEEXT):
 		$(Q) $(PURIFY) $(CC) $(LDFLAGS) $(XLDFLAGS) $(NORMALMAINOBJ) $(MINIOBJS) $(COMMONOBJS) $(MAINLIBS) $(LIBS) $(OUTFLAG)$@
 		$(Q) $(POSTLINK)
 
+fuzzer: fuzzermain.o
+		$(ECHO) linking $@
+		$(Q) $(PURIFY) $(CC) $(LDFLAGS) -fsanitize=fuzzer,address $(XLDFLAGS) fuzzermain.o $(MINIOBJS) $(COMMONOBJS) $(MAINLIBS) $(LIBS) $(OUTFLAG)$@
+		$(Q) $(POSTLINK)
+
 $(PROGRAM):
 		@$(RM) $@
 		$(ECHO) linking $@
